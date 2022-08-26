@@ -59,7 +59,6 @@
             <form
               id='reservation_form'
               name="reserve_form"
-              method="post"
             >
               <div
                 class="formData">
@@ -121,6 +120,7 @@
                   id="location1"
                   name="location"
                   value="New York"
+                  checked
                 />
                 <label class="checkbox-label" for="location1">
                   <span class="checkbox-icon"></span>
@@ -190,7 +190,7 @@
                   type="checkbox"
                   id="checkbox1"
                   name="consent"
-                  checked
+                  checked='"true'
                 />
                 <label class="checkbox2-label" for="checkbox1" required>
                   <span class="checkbox-icon"></span>
@@ -200,7 +200,7 @@
                 <input class="checkbox-input" type="checkbox" id="checkbox2" name="follow" />
                 <label class="checkbox2-label" for="checkbox2">
                   <span class="checkbox-icon"></span>
-                  Je Je souhaite être prévenu des prochains évènements.
+                  Je souhaite être prévenu des prochains évènements.
                 </label>
                 
               </div>
@@ -209,8 +209,15 @@
                 type="submit"
                 class="button"
                 value="C'est parti"
+                disabled
               />
             </form>
+          </div>
+          <div class="form-confirmation-body">
+            <p>Merci pour votre inscription</p>
+            <button
+                class="button btn-close-confirm"
+              />Fermer</button>
           </div>
         </div>
       </div>

@@ -15,6 +15,8 @@ const closeModalBtn = document.querySelector(".close");
 const form = document.querySelector("#reservation_form");
 const formData = document.querySelectorAll(".formData");
 const formSubmitBtn = document.querySelector(".btn-submit");
+const formConfirmBtn = document.querySelector(".btn-close-confirm");
+const formConfirmMessage = document.querySelector(".form-confirmation-body");
 
 // FORM Elements
 const firstName = form[0];
@@ -23,8 +25,9 @@ const email = form[2];
 const birthdate = form[3];
 const quantityOfTurnamentsParticipated = form[4];
 const turnamentLocation = form[5];
-const acceptsConditions = form[6];
+const acceptsConditions = form[11];
 const wantToBeNotified = form[7];
+
 // Hold form inputs validity errors in object
 let errors = {};
 
@@ -96,7 +99,7 @@ form.addEventListener("change", (e) => {
       break;
   
     case "quantity":
-      if (e.target.valueAsNumber < 2 || e.target.valueAsNumber > 99 || !regex.isNumber.test(e.target.value)) {
+      if (e.target.valueAsNumber < 1 || e.target.valueAsNumber > 99 || !regex.isNumber.test(e.target.valueAsNumber)) {
         e.target.parentNode.dataset.error = "Saisie invalide. Entrez un nombre entre 1 et 99.";
         e.target.parentNode.dataset.errorVisible = "true";
         errors = {...errors, [e.target.name] : e.target.value};
@@ -137,16 +140,21 @@ form.addEventListener("change", (e) => {
       break;
   
     default:
+      disableSubmitBtn()
       break;
   };
 });
 
 // Disable submit btn on form error
 function disableSubmitBtn() {
+  let arrayOfFormErrors = formData.dataset && formData.dataset?.error ? Object.values(formData.dataset.error) : false;
   if (Object.values(errors).length > 0) {
+    console.log(Object.values(errors));
     formSubmitBtn.setAttribute("disabled", "");
   } else {
-    formSubmitBtn.removeAttribute("disabled");
+    if (arrayOfFormErrors === false) {
+      formSubmitBtn.removeAttribute("disabled");
+    }
   };
 };
 
@@ -155,6 +163,7 @@ modalBtn.forEach((btn) => btn.addEventListener("click", launchModal));
 
 // close modal event
 closeModalBtn.addEventListener("click", closeModal);
+formConfirmBtn.addEventListener("click", closeModal);
 
 // launch modal form
 function launchModal() {
@@ -165,15 +174,39 @@ function launchModal() {
 }
 
 // close modal form
-function closeModal() {
+function closeModal(e) {
   modalContent.classList.add("close-anim");
   setTimeout(() => {
     modalbg.style.display = "none";
+    if (e.target.classList.contains('btn-close-confirm')) {
+      formConfirmMessage.style.display = "none";
+    }
   }, 500);
 }
 
 // check form values
 form.addEventListener("submit", (e) => {
   e.preventDefault();
-  console.log(e);
+  console.log(errors);
+  if (firstName.value !== "" &&
+      lastName.value !== "" &&
+      email.value !== "" &&
+      birthdate.value !== "" &&
+      quantityOfTurnamentsParticipated.value !== "" &&
+      turnamentLocation !== "" &&
+      acceptsConditions.value === "on"
+    ) {
+      firstName.value = "";
+      lastName.value = "";
+      email.value = "";
+      birthdate.value = "";
+      quantityOfTurnamentsParticipated.value = 1;
+      //show confirmation after sending form
+      formConfirmMessage.style.display = "flex";
+    } else {
+      //add visual error before retry
+      errors = {
+        submitError: "Il y a eu une erreur. Vérifiez vos informations puis réessayez."
+      }
+    }
 })

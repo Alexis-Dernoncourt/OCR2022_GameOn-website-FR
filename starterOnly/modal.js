@@ -10,6 +10,7 @@ function editNav() {
 // DOM Elements
 const modalbg = document.querySelector(".bground");
 const modalContent = document.querySelector(".content");
+const menuBtn = document.querySelector("#menu-btn");
 const modalBtn = document.querySelectorAll(".modal-btn");
 const closeModalBtn = document.querySelector(".close");
 const form = document.querySelector("#reservation_form");
@@ -157,6 +158,9 @@ function disableSubmitBtn() {
     }
   };
 };
+
+// click menu btn event
+menuBtn.addEventListener("click", editNav);
 
 // launch modal event
 modalBtn.forEach((btn) => btn.addEventListener("click", launchModal));

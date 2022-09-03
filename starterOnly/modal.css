@@ -108,7 +108,7 @@ button > .fa-bars {
   }
 }
 
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 767px) {
   .topnav a {display: none;}
   .topnav a.icon {
     float: right;
@@ -272,7 +272,7 @@ main {
   width: 40%;
   position: absolute;
   top: auto;
-  bottom: 5%;
+  bottom: 15%;
 }
 
 label {
@@ -317,12 +317,12 @@ input {
 .formData[data-error-visible="true"] .text-control {
   border: 2px solid #e54858;
 }
-/* 
+
 input[data-error]::after {
     content: attr(data-error);
     font-size: 0.4em;
     color: red;
-} */
+}
 .checkbox-label,
 .checkbox2-label {
   position: relative;
@@ -534,7 +534,7 @@ input[data-error]::after {
   height: 100%;
   background: #232323;
   position: absolute;
-  right: -80px;
+  right: -100px;
   top: 0;
 }
 .hero-content > * {

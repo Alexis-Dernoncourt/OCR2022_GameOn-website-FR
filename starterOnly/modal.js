@@ -37,20 +37,23 @@ const regex = {
   noSpecialChars: /^[a-zA-Z'\-àäâéêëç]{2,}$/i,
   passwordCheck : /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!#$%&()+,-./:;=?@\\[\\]^_`{|}~])[A-Za-z0-9!#$%&()+,-./:;=?@\\[\\]^_`{|}~]{8,}$/,
   mailCheck : /.+@.+\.[a-zA-Z]{2,}$/i,
-  birthdateCheck : /^([0-9]{4}-[0-9]{2}-[0-9]{2})+$/,
+  // birthdateCheck : /^([0-9]{4}-[0-9]{2}-[0-9]{2})+$/,
   isNumber: /^[0-9]+/,
 };
 
 // Check and valid values of each inputs on change
 form.addEventListener("change", (e) => {
-  console.log(errors);
   switch (e.target.name) {
     case "first":
     case "last":
       if (!regex.noSpecialChars.test(e.target.value)) {
         e.target.parentNode.dataset.error = "Saisie incorrecte. Uniquement des caractères (2 minimum) sans espace et avec ou sans accents.";
         e.target.parentNode.dataset.errorVisible = "true";
-        errors = {...errors, [e.target.name] : e.target.value};
+        Object.defineProperty(errors, [e.target.name], {
+          value: e.target.value,
+          configurable: true,
+          enumerable: true,
+        })
       } else {
         e.target.parentNode.dataset.error = "";
         e.target.parentNode.dataset.errorVisible = "false";
@@ -63,7 +66,11 @@ form.addEventListener("change", (e) => {
       if (!regex.mailCheck.test(email.value)) {
         e.target.parentNode.dataset.error = "Adresse email invalide.";
         e.target.parentNode.dataset.errorVisible = "true";
-        errors = {...errors, [e.target.name] : e.target.value};
+        Object.defineProperty(errors, [e.target.name], {
+          value: e.target.value,
+          configurable: true,
+          enumerable: true,
+        })
       } else {
         e.target.parentNode.dataset.error = "";
         e.target.parentNode.dataset.errorVisible = "false";
@@ -73,37 +80,46 @@ form.addEventListener("change", (e) => {
       break;
   
     case "birthdate":
-      const actualYear = new Date(Date.now()).getFullYear();
-      const checkValidAgeToParticipate = actualYear - 15;
-      let ageIsUnder15 = new Date(e.target.value).getFullYear() > checkValidAgeToParticipate;
-
       if (
         e.target.valueAsDate === null ||
-        new Date(e.target.value).getTime() < new Date("1900-01-01").getTime() ||
-        ageIsUnder15 ||
-        !regex.birthdateCheck.test(birthdate.value)
-      ) {
-        ageIsUnder15 ? (
-          e.target.parentNode.dataset.error = "Entrez une valeur valide. *Vous devez avoir au minimum 15ans pour pouvoir participer."
-        ) : (
-          e.target.parentNode.dataset.error = "Entrez une valeur valide."
-        );
-        
-        e.target.parentNode.dataset.errorVisible = "true";
-        errors = {...errors, [e.target.name] : e.target.value};
+        new Date(e.target.value).getTime() < new Date("1900-01-01").getTime()        
+        ) {
+          e.target.parentNode.dataset.error = "Entrez une valeur valide.";
+          e.target.parentNode.dataset.errorVisible = "true";
+          Object.defineProperty(errors, [e.target.name], {
+            value: e.target.value,
+            configurable: true,
+            enumerable: true,
+          })
       } else {
-        e.target.parentNode.dataset.error = "";
-        e.target.parentNode.dataset.errorVisible = "false";
-        delete errors[e.target.name];
+        if (compareAge(e.target.valueAsNumber)) {
+          e.target.parentNode.dataset.error = "Entrez une valeur valide. *Vous devez avoir au minimum 15ans pour pouvoir participer.";
+          e.target.parentNode.dataset.errorVisible = "true";
+          Object.defineProperty(errors, [e.target.name], {
+            value: e.target.value,
+            configurable: true,
+            enumerable: true,
+          })
+        } else {
+          e.target.parentNode.dataset.error = "";
+          e.target.parentNode.dataset.errorVisible = "false";
+          delete errors[e.target.name];
+        }
+        disableSubmitBtn()
+        break;
       }
       disableSubmitBtn()
       break;
   
-    case "quantity":
-      if (e.target.valueAsNumber < 1 || e.target.valueAsNumber > 99 || !regex.isNumber.test(e.target.valueAsNumber)) {
+    case "quantity":  
+      if (e.target.value === "" || e.target.validity.badInput || !regex.isNumber.test(parseInt(e.target.value)) || e.target.valueAsNumber < 1 || e.target.valueAsNumber > 99) {
         e.target.parentNode.dataset.error = "Saisie invalide. Entrez un nombre entre 1 et 99.";
         e.target.parentNode.dataset.errorVisible = "true";
-        errors = {...errors, [e.target.name] : e.target.value};
+        Object.defineProperty(errors, [e.target.name], {
+          value: e.target.value,
+          configurable: true,
+          enumerable: true,
+        })
       } else {
         e.target.parentNode.dataset.error = "";
         e.target.parentNode.dataset.errorVisible = "false";
@@ -116,7 +132,11 @@ form.addEventListener("change", (e) => {
       if (e.target.value === "") {
         e.target.parentNode.dataset.error = "Veuillez selectionner une option.";
         e.target.parentNode.dataset.errorVisible = "true";
-        errors = {...errors, [e.target.name] : e.target.value};
+        Object.defineProperty(errors, [e.target.name], {
+          value: e.target.value,
+          configurable: true,
+          enumerable: true,
+        })
       } else {
         e.target.parentNode.dataset.error = "";
         e.target.parentNode.dataset.errorVisible = "false";
@@ -130,7 +150,11 @@ form.addEventListener("change", (e) => {
         e.target.parentNode.dataset.error = "Vous devez accepter les conditions d'utilisation pour continuer.";
         e.target.parentNode.dataset.errorVisible = "true";
         e.target.labels[0].childNodes[1].style.border = "2px solid red";
-        errors = {...errors, [e.target.name] : e.target.value};
+        Object.defineProperty(errors, [e.target.name], {
+          value: e.target.value,
+          configurable: true,
+          enumerable: true,
+        })
       } else {
         e.target.parentNode.dataset.error = "";
         e.target.parentNode.dataset.errorVisible = "false";
@@ -141,21 +165,31 @@ form.addEventListener("change", (e) => {
       break;
   
     default:
-      disableSubmitBtn()
       break;
   };
 });
 
+// Compare if age is up to 15
+function compareAge(age) {
+  const actualYear = new Date(Date.now()).getFullYear();
+  const yearToCompare = new Date(age).getFullYear();
+  const checkValidAgeToParticipate = actualYear - 15;
+  const actualDate = new Date(Date.now());
+  const actualDateMin15 = age + 473040000000;
+
+  if (yearToCompare > checkValidAgeToParticipate || actualDateMin15 > actualDate) {
+    return true
+  } else {
+    return false
+  }
+}
+
 // Disable submit btn on form error
 function disableSubmitBtn() {
-  let arrayOfFormErrors = formData.dataset && formData.dataset?.error ? Object.values(formData.dataset.error) : false;
-  if (Object.values(errors).length > 0) {
-    console.log(Object.values(errors));
+  if (Object.keys(errors).length > 0) {
     formSubmitBtn.setAttribute("disabled", "");
   } else {
-    if (arrayOfFormErrors === false) {
-      formSubmitBtn.removeAttribute("disabled");
-    }
+    formSubmitBtn.removeAttribute("disabled");
   };
 };
 
@@ -191,7 +225,6 @@ function closeModal(e) {
 // check form values
 form.addEventListener("submit", (e) => {
   e.preventDefault();
-  console.log(errors);
   if (firstName.value !== "" &&
       lastName.value !== "" &&
       email.value !== "" &&
@@ -207,6 +240,7 @@ form.addEventListener("submit", (e) => {
       quantityOfTurnamentsParticipated.value = 1;
       //show confirmation after sending form
       formConfirmMessage.style.display = "flex";
+      closeModalBtn.classList.add("btn-close-confirm");
     } else {
       //add visual error before retry
       errors = {

@@ -37,7 +37,6 @@ const regex = {
   noSpecialChars: /^[a-zA-Z'\-àäâéêëç]{2,}$/i,
   passwordCheck : /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!#$%&()+,-./:;=?@\\[\\]^_`{|}~])[A-Za-z0-9!#$%&()+,-./:;=?@\\[\\]^_`{|}~]{8,}$/,
   mailCheck : /.+@.+\.[a-zA-Z]{2,}$/i,
-  // birthdateCheck : /^([0-9]{4}-[0-9]{2}-[0-9]{2})+$/,
   isNumber: /^[0-9]+/,
 };
 
@@ -49,11 +48,7 @@ form.addEventListener("change", (e) => {
       if (!regex.noSpecialChars.test(e.target.value)) {
         e.target.parentNode.dataset.error = "Saisie incorrecte. Uniquement des caractères (2 minimum) sans espace et avec ou sans accents.";
         e.target.parentNode.dataset.errorVisible = "true";
-        Object.defineProperty(errors, [e.target.name], {
-          value: e.target.value,
-          configurable: true,
-          enumerable: true,
-        })
+        errors[e.target.name] = e.target.value;
       } else {
         e.target.parentNode.dataset.error = "";
         e.target.parentNode.dataset.errorVisible = "false";
@@ -66,11 +61,7 @@ form.addEventListener("change", (e) => {
       if (!regex.mailCheck.test(email.value)) {
         e.target.parentNode.dataset.error = "Adresse email invalide.";
         e.target.parentNode.dataset.errorVisible = "true";
-        Object.defineProperty(errors, [e.target.name], {
-          value: e.target.value,
-          configurable: true,
-          enumerable: true,
-        })
+        errors[e.target.name] = e.target.value;
       } else {
         e.target.parentNode.dataset.error = "";
         e.target.parentNode.dataset.errorVisible = "false";
@@ -86,20 +77,12 @@ form.addEventListener("change", (e) => {
         ) {
           e.target.parentNode.dataset.error = "Entrez une valeur valide.";
           e.target.parentNode.dataset.errorVisible = "true";
-          Object.defineProperty(errors, [e.target.name], {
-            value: e.target.value,
-            configurable: true,
-            enumerable: true,
-          })
+          errors[e.target.name] = e.target.value;
       } else {
         if (compareAge(e.target.valueAsNumber)) {
           e.target.parentNode.dataset.error = "Entrez une valeur valide. *Vous devez avoir au minimum 15ans pour pouvoir participer.";
           e.target.parentNode.dataset.errorVisible = "true";
-          Object.defineProperty(errors, [e.target.name], {
-            value: e.target.value,
-            configurable: true,
-            enumerable: true,
-          })
+          errors[e.target.name] = e.target.value;
         } else {
           e.target.parentNode.dataset.error = "";
           e.target.parentNode.dataset.errorVisible = "false";
@@ -115,11 +98,7 @@ form.addEventListener("change", (e) => {
       if (e.target.value === "" || e.target.validity.badInput || !regex.isNumber.test(parseInt(e.target.value)) || e.target.valueAsNumber < 1 || e.target.valueAsNumber > 99) {
         e.target.parentNode.dataset.error = "Saisie invalide. Entrez un nombre entre 1 et 99.";
         e.target.parentNode.dataset.errorVisible = "true";
-        Object.defineProperty(errors, [e.target.name], {
-          value: e.target.value,
-          configurable: true,
-          enumerable: true,
-        })
+        errors[e.target.name] = e.target.value;
       } else {
         e.target.parentNode.dataset.error = "";
         e.target.parentNode.dataset.errorVisible = "false";
@@ -132,11 +111,7 @@ form.addEventListener("change", (e) => {
       if (e.target.value === "") {
         e.target.parentNode.dataset.error = "Veuillez selectionner une option.";
         e.target.parentNode.dataset.errorVisible = "true";
-        Object.defineProperty(errors, [e.target.name], {
-          value: e.target.value,
-          configurable: true,
-          enumerable: true,
-        })
+        errors[e.target.name] = e.target.value;
       } else {
         e.target.parentNode.dataset.error = "";
         e.target.parentNode.dataset.errorVisible = "false";
@@ -150,11 +125,7 @@ form.addEventListener("change", (e) => {
         e.target.parentNode.dataset.error = "Vous devez accepter les conditions d'utilisation pour continuer.";
         e.target.parentNode.dataset.errorVisible = "true";
         e.target.labels[0].childNodes[1].style.border = "2px solid red";
-        Object.defineProperty(errors, [e.target.name], {
-          value: e.target.value,
-          configurable: true,
-          enumerable: true,
-        })
+        errors[e.target.name] = "Accepter les conditions d'utilisation.";
       } else {
         e.target.parentNode.dataset.error = "";
         e.target.parentNode.dataset.errorVisible = "false";
@@ -243,8 +214,6 @@ form.addEventListener("submit", (e) => {
       closeModalBtn.classList.add("btn-close-confirm");
     } else {
       //add visual error before retry
-      errors = {
-        submitError: "Il y a eu une erreur. Vérifiez vos informations puis réessayez."
-      }
+      errors.submitError = "Il y a eu une erreur. Vérifiez vos informations puis réessayez."
     }
 })

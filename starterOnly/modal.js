@@ -25,7 +25,8 @@ const lastName = form[1];
 const email = form[2];
 const birthdate = form[3];
 const quantityOfTurnamentsParticipated = form[4];
-const turnamentLocation = form[5];
+const turnamentLocation = document.getElementsByName('location');
+let turnamentLocationValue = {name: "", value: "", currentTarget: form[5].parentNode};
 const acceptsConditions = form[11];
 const wantToBeNotified = form[7];
 
@@ -34,111 +35,103 @@ let errors = {};
 
 // REGEX rules
 const regex = {
-  noSpecialChars: /^[a-zA-Z'\-àäâéêëç]{2,}$/i,
-  passwordCheck : /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!#$%&()+,-./:;=?@\\[\\]^_`{|}~])[A-Za-z0-9!#$%&()+,-./:;=?@\\[\\]^_`{|}~]{8,}$/,
+  noSpecialChars: /^[a-zA-Z'\-àäâéêëçùûü]{2,}$/i,
   mailCheck : /.+@.+\.[a-zA-Z]{2,}$/i,
   isNumber: /^[0-9]+/,
 };
 
 // Check and valid values of each inputs on change
-form.addEventListener("change", (e) => {
-  switch (e.target.name) {
-    case "first":
-    case "last":
-      if (!regex.noSpecialChars.test(e.target.value)) {
-        e.target.parentNode.dataset.error = "Saisie incorrecte. Uniquement des caractères (2 minimum) sans espace et avec ou sans accents.";
-        e.target.parentNode.dataset.errorVisible = "true";
-        errors[e.target.name] = e.target.value;
+form.addEventListener("change", (e) => checkInputsData(e.target));
+
+function checkInputsData(e) {
+  if (e.name === 'first' || e.name === 'last') {
+    if (regex.noSpecialChars.test(e.value)) {
+      setHtmlDatasetError(e.parentNode, "", "false", e.name, "delete");
+    } else {
+      setHtmlDatasetError(e.parentNode, "Saisie incorrecte. Uniquement des caractères (2 minimum) sans espace et avec ou sans accents.", "true", e.name, e.value);
+    }
+  } else if (e.name === 'email') {
+    if (regex.mailCheck.test(email.value)) {
+      setHtmlDatasetError(e.parentNode, "", "false", e.name, "delete");
+    } else {
+      setHtmlDatasetError(e.parentNode, "Adresse email invalide.", "true", e.name, e.value);
+    }
+  } else if (e.name === 'birthdate') {
+    if (
+      e.valueAsDate === null ||
+      new Date(e.value).getTime() < new Date("1900-01-01").getTime()        
+      ) {
+        setHtmlDatasetError(e.parentNode, "Entrez une valeur valide.", "true", e.name, e.value);
+    } else {
+      if (compareAge(e.valueAsNumber)) {
+        setHtmlDatasetError(e.parentNode, "Entrez une valeur valide. *Vous devez avoir au minimum 15ans pour pouvoir participer.", "true", e.name, e.value);
       } else {
-        e.target.parentNode.dataset.error = "";
-        e.target.parentNode.dataset.errorVisible = "false";
-        delete errors[e.target.name];
+        setHtmlDatasetError(e.parentNode, "", "false", e.name, "delete");
       }
-      disableSubmitBtn()
-      break;
-  
-    case "email":
-      if (!regex.mailCheck.test(email.value)) {
-        e.target.parentNode.dataset.error = "Adresse email invalide.";
-        e.target.parentNode.dataset.errorVisible = "true";
-        errors[e.target.name] = e.target.value;
+    }
+  } else if (e.name === 'quantity') {
+    if (e.value === "" || e.validity.badInput || regex.isNumber.test(parseInt(e.value)) === false || e.valueAsNumber < 0 || e.valueAsNumber > 99) {
+      setHtmlDatasetError(e.parentNode, "Saisie invalide. Entrez un nombre entre 0 et 99.", "true", e.name, e.value);
+    } else {
+      setHtmlDatasetError(e.parentNode, "", "false", e.name, "delete");
+    }
+  } else if (e.name === 'location') {
+    checkLocationValue();
+    if (e.value === "") {
+      if (e.currentTarget) {
+        setHtmlDatasetError(e.currentTarget.parentNode, "Veuillez selectionner une option.", "true", e.name, e.value);
       } else {
-        e.target.parentNode.dataset.error = "";
-        e.target.parentNode.dataset.errorVisible = "false";
-        delete errors[e.target.name];
+        setHtmlDatasetError(e.parentNode, "Veuillez selectionner une option.", "true", e.name, e.value);
       }
-      disableSubmitBtn()
-      break;
-  
-    case "birthdate":
-      if (
-        e.target.valueAsDate === null ||
-        new Date(e.target.value).getTime() < new Date("1900-01-01").getTime()        
-        ) {
-          e.target.parentNode.dataset.error = "Entrez une valeur valide.";
-          e.target.parentNode.dataset.errorVisible = "true";
-          errors[e.target.name] = e.target.value;
+    } else {
+      if (e.currentTarget) {
+        setHtmlDatasetError(e.currentTarget.parentNode, "", "false", e.name, "delete");
       } else {
-        if (compareAge(e.target.valueAsNumber)) {
-          e.target.parentNode.dataset.error = "Entrez une valeur valide. *Vous devez avoir au minimum 15ans pour pouvoir participer.";
-          e.target.parentNode.dataset.errorVisible = "true";
-          errors[e.target.name] = e.target.value;
-        } else {
-          e.target.parentNode.dataset.error = "";
-          e.target.parentNode.dataset.errorVisible = "false";
-          delete errors[e.target.name];
-        }
-        disableSubmitBtn()
-        break;
+        setHtmlDatasetError(e.parentNode, "", "false", e.name, "delete");
       }
-      disableSubmitBtn()
-      break;
-  
-    case "quantity":  
-      if (e.target.value === "" || e.target.validity.badInput || !regex.isNumber.test(parseInt(e.target.value)) || e.target.valueAsNumber < 1 || e.target.valueAsNumber > 99) {
-        e.target.parentNode.dataset.error = "Saisie invalide. Entrez un nombre entre 1 et 99.";
-        e.target.parentNode.dataset.errorVisible = "true";
-        errors[e.target.name] = e.target.value;
-      } else {
-        e.target.parentNode.dataset.error = "";
-        e.target.parentNode.dataset.errorVisible = "false";
-        delete errors[e.target.name];
-      }
-      disableSubmitBtn()
-      break;
-  
-    case "location":
-      if (e.target.value === "") {
-        e.target.parentNode.dataset.error = "Veuillez selectionner une option.";
-        e.target.parentNode.dataset.errorVisible = "true";
-        errors[e.target.name] = e.target.value;
-      } else {
-        e.target.parentNode.dataset.error = "";
-        e.target.parentNode.dataset.errorVisible = "false";
-        delete errors[e.target.name];
-      }
-      disableSubmitBtn()
-      break;
-  
-    case "consent":
-      if (!e.target.checked) {
-        e.target.parentNode.dataset.error = "Vous devez accepter les conditions d'utilisation pour continuer.";
-        e.target.parentNode.dataset.errorVisible = "true";
-        e.target.labels[0].childNodes[1].style.border = "2px solid red";
-        errors[e.target.name] = "Accepter les conditions d'utilisation.";
-      } else {
-        e.target.parentNode.dataset.error = "";
-        e.target.parentNode.dataset.errorVisible = "false";
-        e.target.labels[0].childNodes[1].removeAttribute("style");
-        delete errors[e.target.name];
-      }
-      disableSubmitBtn()
-      break;
-  
-    default:
-      break;
-  };
-});
+    }
+  } else if (e.name === 'consent') {
+    if (e.checked) {
+      e.labels[0].childNodes[1].removeAttribute("style");
+      setHtmlDatasetError(e.parentNode, "", "false", e.name, "delete");
+    } else {
+      setHtmlDatasetError(e.parentNode, "Vous devez accepter les conditions d'utilisation pour continuer.", "true", e.name, "Vous devez accepter les conditions d'utilisation.");
+      e.labels[0].childNodes[1].style.border = "2px solid red";
+    }
+  }
+  disableSubmitBtn();
+}
+
+function setHtmlDatasetError(parentNode, message, visible, errorName, errorValue) {
+  parentNode.dataset.error = message;
+  parentNode.dataset.errorVisible = visible;
+  (errorValue === "delete") ? delete errors[errorName] : errors[errorName] = errorValue;
+}
+
+function checkInputsDataOnSubmit() {
+  checkInputsData(firstName);
+  checkInputsData(lastName);
+  checkInputsData(email);
+  checkInputsData(birthdate);
+  checkInputsData(quantityOfTurnamentsParticipated);
+  checkInputsData(turnamentLocationValue);
+  checkInputsData(acceptsConditions);
+}
+
+function checkLocationValue() {
+  for (e of turnamentLocation) {
+    if (e.checked) {
+      turnamentLocationValue.name = e.name;
+      turnamentLocationValue.value = e.value;
+    }
+  }
+
+  if (turnamentLocationValue.value !== "") {
+    setHtmlDatasetError(turnamentLocationValue.currentTarget, "", "false", "location", "delete");
+  } else {
+    setHtmlDatasetError(turnamentLocationValue.currentTarget, "Veuillez selectionner une option.", "true", "location", "");
+  }
+}
 
 // Compare if age is up to 15
 function compareAge(age) {
@@ -147,12 +140,7 @@ function compareAge(age) {
   const checkValidAgeToParticipate = actualYear - 15;
   const actualDate = new Date(Date.now());
   const actualDateMin15 = age + 473040000000;
-
-  if (yearToCompare > checkValidAgeToParticipate || actualDateMin15 > actualDate) {
-    return true
-  } else {
-    return false
-  }
+  return (yearToCompare > checkValidAgeToParticipate || actualDateMin15 > actualDate)
 }
 
 // Disable submit btn on form error
@@ -169,7 +157,6 @@ menuBtn.addEventListener("click", editNav);
 
 // launch modal event
 modalBtn.forEach((btn) => btn.addEventListener("click", launchModal));
-
 // close modal event
 closeModalBtn.addEventListener("click", closeModal);
 formConfirmBtn.addEventListener("click", closeModal);
@@ -181,7 +168,6 @@ function launchModal() {
   }
   modalbg.style.display = "block";
 }
-
 // close modal form
 function closeModal(e) {
   modalContent.classList.add("close-anim");
@@ -196,24 +182,47 @@ function closeModal(e) {
 // check form values
 form.addEventListener("submit", (e) => {
   e.preventDefault();
-  if (firstName.value !== "" &&
-      lastName.value !== "" &&
-      email.value !== "" &&
-      birthdate.value !== "" &&
-      quantityOfTurnamentsParticipated.value !== "" &&
-      turnamentLocation !== "" &&
-      acceptsConditions.value === "on"
-    ) {
-      firstName.value = "";
-      lastName.value = "";
-      email.value = "";
-      birthdate.value = "";
-      quantityOfTurnamentsParticipated.value = 1;
-      //show confirmation after sending form
-      formConfirmMessage.style.display = "flex";
-      closeModalBtn.classList.add("btn-close-confirm");
-    } else {
-      //add visual error before retry
-      errors.submitError = "Il y a eu une erreur. Vérifiez vos informations puis réessayez."
-    }
+  checkLocationValue();
+  if (
+    firstName.value !== "" && firstName !== undefined &&
+    lastName.value !== "" && lastName !== undefined &&
+    email.value !== "" && email !== undefined &&
+    birthdate.value !== "" && birthdate !== undefined &&
+    quantityOfTurnamentsParticipated.value !== "" && quantityOfTurnamentsParticipated !== undefined &&
+    turnamentLocationValue.value !== "" &&
+    acceptsConditions.checked
+  ) 
+  {
+    checkInputsDataOnSubmit()
+    console.info({
+      firstName: firstName.value,
+      lastName: lastName.value,
+      email: email.value,
+      birthdate: birthdate.value,
+      quantityOfTurnamentsParticipated: quantityOfTurnamentsParticipated.value,
+      turnamentLocation: turnamentLocationValue.value,
+      acceptsConditions: acceptsConditions.checked,
+      wantToBeNotified: wantToBeNotified.checked
+    });
+
+    firstName.value = "";
+    lastName.value = "";
+    email.value = "";
+    birthdate.value = "";
+    quantityOfTurnamentsParticipated.value = "";
+    turnamentLocationValue = {};
+    acceptsConditions.checked = false;
+    //show confirmation after sending form
+    formConfirmMessage.style.display = "flex";
+    closeModalBtn.classList.add("btn-close-confirm");
+  } else {
+    //add visual error before retry
+    checkInputsDataOnSubmit()
+    acceptsConditions.parentNode.dataset.error = "Il y a eu une erreur. Vérifiez vos informations puis réessayez.";
+    acceptsConditions.parentNode.dataset.errorVisible = true;
+    setTimeout(() => {
+      acceptsConditions.parentNode.dataset.error = "";
+      acceptsConditions.parentNode.dataset.errorVisible = false;
+    }, 4000)
+  }
 })

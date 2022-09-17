@@ -70,8 +70,7 @@
                   type="text"
                   id="first"
                   name="first"
-                  minlength="2"
-                  required
+                  
                 />
               </div>
               <div
@@ -82,7 +81,7 @@
                   type="text"
                   id="last"
                   name="last"
-                  required
+                  
                 />
               </div>
               <div
@@ -93,7 +92,7 @@
                   type="email"
                   id="email"
                   name="email"
-                  required
+                  
                 />
               </div>
               <div
@@ -105,13 +104,13 @@
                   id="birthdate"
                   name="birthdate"
                   min='1900-01-01'
-                  required
+                  
                 />
               </div>
               <div
                 class="formData">
                 <label for='quantity'>À combien de tournois GameOn avez-vous déjà participé ?</label>
-                <input required type="number" class="text-control" id="quantity" name="quantity" value="1" min="1" max="99">
+                <input type="number" class="text-control" id="quantity" name="quantity" value="" min="0" max="99">
               </div>
               <p class="text-label">A quel tournoi souhaitez-vous participer cette année ?</p>
               <div
@@ -122,7 +121,6 @@
                   id="location1"
                   name="location"
                   value="New York"
-                  checked
                 />
                 <label class="checkbox-label" for="location1">
                   <span class="checkbox-icon"></span>
@@ -192,9 +190,8 @@
                   type="checkbox"
                   id="checkbox1"
                   name="consent"
-                  checked='"true'
                 />
-                <label class="checkbox2-label" for="checkbox1" required>
+                <label class="checkbox2-label" for="checkbox1">
                   <span class="checkbox-icon"></span>
                   J'ai lu et accepté les conditions d'utilisation.
                 </label>

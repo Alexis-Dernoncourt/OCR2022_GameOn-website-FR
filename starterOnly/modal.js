@@ -46,9 +46,9 @@ form.addEventListener('change', (e) => checkInputsData(e.target));
 function checkInputsData(e) {
     if (e.name === 'first' || e.name === 'last') {
         if (regex.noSpecialChars.test(e.value)) {
-            setHtmlDatasetError(e.parentNode, '', 'false', e.name, 'delete');
+            setOrDeleteHtmlDatasetError(e.parentNode, '', 'false', e.name, 'delete');
         } else {
-            setHtmlDatasetError(
+            setOrDeleteHtmlDatasetError(
                 e.parentNode,
                 'Saisie incorrecte. Uniquement des caractères (2 minimum) sans espace et avec ou sans accents.',
                 'true',
@@ -58,16 +58,16 @@ function checkInputsData(e) {
         }
     } else if (e.name === 'email') {
         if (regex.mailCheck.test(email.value)) {
-            setHtmlDatasetError(e.parentNode, '', 'false', e.name, 'delete');
+            setOrDeleteHtmlDatasetError(e.parentNode, '', 'false', e.name, 'delete');
         } else {
-            setHtmlDatasetError(e.parentNode, 'Adresse email invalide.', 'true', e.name, e.value);
+            setOrDeleteHtmlDatasetError(e.parentNode, 'Adresse email invalide.', 'true', e.name, e.value);
         }
     } else if (e.name === 'birthdate') {
         if (e.valueAsDate === null || new Date(e.value).getTime() < new Date('1900-01-01').getTime()) {
-            setHtmlDatasetError(e.parentNode, 'Entrez une valeur valide.', 'true', e.name, e.value);
+            setOrDeleteHtmlDatasetError(e.parentNode, 'Entrez une valeur valide.', 'true', e.name, e.value);
         } else {
             if (compareAge(e.valueAsNumber)) {
-                setHtmlDatasetError(
+                setOrDeleteHtmlDatasetError(
                     e.parentNode,
                     'Entrez une valeur valide. *Vous devez avoir au minimum 15ans pour pouvoir participer.',
                     'true',
@@ -75,7 +75,7 @@ function checkInputsData(e) {
                     e.value
                 );
             } else {
-                setHtmlDatasetError(e.parentNode, '', 'false', e.name, 'delete');
+                setOrDeleteHtmlDatasetError(e.parentNode, '', 'false', e.name, 'delete');
             }
         }
     } else if (e.name === 'quantity') {
@@ -86,31 +86,31 @@ function checkInputsData(e) {
             e.valueAsNumber < 0 ||
             e.valueAsNumber > 99
         ) {
-            setHtmlDatasetError(e.parentNode, 'Saisie invalide. Entrez un nombre entre 0 et 99.', 'true', e.name, e.value);
+            setOrDeleteHtmlDatasetError(e.parentNode, 'Saisie invalide. Entrez un nombre entre 0 et 99.', 'true', e.name, e.value);
         } else {
-            setHtmlDatasetError(e.parentNode, '', 'false', e.name, 'delete');
+            setOrDeleteHtmlDatasetError(e.parentNode, '', 'false', e.name, 'delete');
         }
     } else if (e.name === 'location') {
         checkLocationValue();
         if (e.value === '') {
             if (e.currentTarget) {
-                setHtmlDatasetError(e.currentTarget.parentNode, 'Veuillez selectionner une option.', 'true', e.name, e.value);
+                setOrDeleteHtmlDatasetError(e.currentTarget.parentNode, 'Veuillez selectionner une option.', 'true', e.name, e.value);
             } else {
-                setHtmlDatasetError(e.parentNode, 'Veuillez selectionner une option.', 'true', e.name, e.value);
+                setOrDeleteHtmlDatasetError(e.parentNode, 'Veuillez selectionner une option.', 'true', e.name, e.value);
             }
         } else {
             if (e.currentTarget) {
-                setHtmlDatasetError(e.currentTarget.parentNode, '', 'false', e.name, 'delete');
+                setOrDeleteHtmlDatasetError(e.currentTarget.parentNode, '', 'false', e.name, 'delete');
             } else {
-                setHtmlDatasetError(e.parentNode, '', 'false', e.name, 'delete');
+                setOrDeleteHtmlDatasetError(e.parentNode, '', 'false', e.name, 'delete');
             }
         }
     } else if (e.name === 'consent') {
         if (e.checked) {
             e.labels[0].childNodes[1].removeAttribute('style');
-            setHtmlDatasetError(e.parentNode, '', 'false', e.name, 'delete');
+            setOrDeleteHtmlDatasetError(e.parentNode, '', 'false', e.name, 'delete');
         } else {
-            setHtmlDatasetError(
+            setOrDeleteHtmlDatasetError(
                 e.parentNode,
                 "Vous devez accepter les conditions d'utilisation pour continuer.",
                 'true',
@@ -123,7 +123,7 @@ function checkInputsData(e) {
     disableSubmitBtn();
 }
 
-function setHtmlDatasetError(parentNode, message, visible, errorName, errorValue) {
+function setOrDeleteHtmlDatasetError(parentNode, message, visible, errorName, errorValue) {
     parentNode.dataset.error = message;
     parentNode.dataset.errorVisible = visible;
     errorValue === 'delete' ? delete errors[errorName] : (errors[errorName] = errorValue);
@@ -148,9 +148,9 @@ function checkLocationValue() {
     }
 
     if (turnamentLocationValue.value !== '') {
-        setHtmlDatasetError(turnamentLocationValue.currentTarget, '', 'false', 'location', 'delete');
+        setOrDeleteHtmlDatasetError(turnamentLocationValue.currentTarget, '', 'false', 'location', 'delete');
     } else {
-        setHtmlDatasetError(turnamentLocationValue.currentTarget, 'Veuillez selectionner une option.', 'true', 'location', '');
+        setOrDeleteHtmlDatasetError(turnamentLocationValue.currentTarget, 'Veuillez selectionner une option.', 'true', 'location', '');
     }
 }
 
@@ -224,8 +224,11 @@ form.addEventListener('submit', (e) => {
         email.value = '';
         birthdate.value = '';
         quantityOfTurnamentsParticipated.value = '';
-        turnamentLocationValue = {};
+        turnamentLocationValue = { name: '', value: '' };
         acceptsConditions.checked = false;
+        for (e of turnamentLocation) {
+            e.checked && (e.checked = false);
+        }
         //show confirmation after sending form
         formConfirmMessage.style.display = 'flex';
         closeModalBtn.classList.add('btn-close-confirm');
